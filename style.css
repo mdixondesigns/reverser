@@ -3,30 +3,92 @@
 }
 
 body {
-	font-family:  sans-serif;
+	background-color: #F2F2F2;
+	font-family: 'Roboto', sans-serif;
+}
+
+h1, h2 {
+	color:  #764AF1;
+	font-family: 'Abril Fatface', cursive;
+	letter-spacing: 1px;
+}
+
+h1 {
+	font-size:  3rem;
+}
+
+h1, p {
+	max-width: 520px;
+}
+
+h2.err {
+	color: #F32424;
 }
 
 .app-container {
-	display:  flex;
+	margin-bottom: 15px;
+	max-width: 900px;
 }
 
-.app-container > div {
-	border:  1px solid red;
+#input-output-container {
+	display:  flex;
+	flex-direction: column;
+	gap:  15px;
+}
+
+@media only screen and (min-width: 567px) {
+	#input-output-container {
+		flex-direction: row;
+	}
+}
+
+#input-output-container > div {
 	flex:  1;
 	position: relative;
 }
 
-textarea {
-	min-height:  200px;
-	padding:  10px;
-	width:  100%;
+#counter {
+	position: absolute;
+    
+    top: -19px;
+    right: 0;
 }
 
-#counter {
-	background: lightcoral;
-    padding: 6px 12px;
-    position: absolute;
-    
-    top: -30px;
-    right: 0;
+textarea {
+	border: 2px solid #9772FB;
+	border-radius: 4px;
+	font-family: 'Roboto', sans-serif;
+	font-size: 1rem;
+	max-width:  100%;
+	min-height:  200px;
+	padding:  24px;
+	padding-right: 48px;
+	resize: none;
+	width:  100%;
+}
+textarea:focus {
+	border: 2px solid #764AF1;
+	outline: none !important;
+}
+
+#output-text {
+	background-color: #eaeaea;
+	border-radius:  4px;
+	min-height:  200px;
+	padding:  24px;
+	padding-right: 48px;
+}
+
+button {
+	cursor: pointer;
+	letter-spacing: 0.6px;
+	padding: 6px 12px;
+    text-transform: uppercase;
+}
+
+button.disabled {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #ccc;
+    cursor: default;
 }

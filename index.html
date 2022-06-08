@@ -5,30 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>The Magnificent Text Reverser</title>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Roboto&display=swap" rel="stylesheet">
     
+	<style type="text/css">
+		* {
+			box-sizing:  border-box;
+		}
+
+		body {
+			background-color: #F2F2F2;
+			font-family: 'Roboto', sans-serif;
+		}
+
+		h1, h2 {
+			color:  #764AF1;
+			font-family: 'Abril Fatface', cursive;
+			letter-spacing: 1px;
+		}
+
+		h1 {
+			font-size:  3rem;
+		}
+
+		h1, p {
+			max-width: 520px;
+		}
+
+		h2.err {
+			color: #F32424;
+		}
+
+		#wrapper {
+			margin: 0 auto;
+			max-width: 900px;
+		}
+
+		.app-container {
+			margin-bottom: 15px;
+		}
+
+		#input-output-container {
+			display:  flex;
+			flex-direction: column;
+			gap:  15px;
+		}
+
+		@media only screen and (min-width: 567px) {
+			#input-output-container {
+				flex-direction: row;
+			}
+		}
+
+		#input-output-container > div {
+			flex:  1;
+			position: relative;
+		}
+
+		#counter {
+			position: absolute;
+		    
+		    top: -19px;
+		    right: 0;
+		}
+
+		textarea {
+			border: 2px solid #9772FB;
+			border-radius: 4px;
+			font-family: 'Roboto', sans-serif;
+			font-size: 1rem;
+			max-width:  100%;
+			min-height:  200px;
+			padding:  24px;
+			padding-right: 48px;
+			resize: none;
+			width:  100%;
+		}
+		textarea:focus {
+			border: 2px solid #764AF1;
+			outline: none !important;
+		}
+
+		#output-text {
+			background-color: #eaeaea;
+			border-radius:  4px;
+			min-height:  200px;
+			padding:  24px;
+			padding-right: 48px;
+		}
+
+		button {
+			cursor: pointer;
+			letter-spacing: 0.6px;
+			padding: 6px 12px;
+		    text-transform: uppercase;
+		}
+
+		button.disabled {
+		    border: 1px solid #ccc;
+		    border-radius: 4px;
+		    color: #ccc;
+		    cursor: default;
+		}
+
+	</style>
+
   </head>
 
   <body>
 
+  	<div id="wrapper">
 
-    <h1>The Magnificent Text Reverser</h1>
-    <p>Are you sick of reading everything from left to right? Well you're in luck because we've got just the tool for the job! Simply drop your prose into the Magnificent Text Reverser and watch your worries melt away!</p>
+	    <h1>The Magnificent Text Reverser</h1>
+	    <p>Are you sick of reading everything from left to right? Well have I got the tool for you! Simply drop your prose into the Magnificent Text Reverser and watch your worries melt away!</p>
+	    <br>
+	    <br>
 
-    <div class="app-container">
-    	
-    	<div>
-    		<textarea id="input-text">Hello, world.</textarea>
+	    <div class="app-container">
+	    	<label for="input-text">Your text goes here:</label>
 
-    	</div>
+	    	<div id="input-output-container">
+		    	<div>
+		    		<div id="counter">Chars: <span id="word-count">0</span> / <span id="max-word-count">300</span></div>
+		    		<textarea id="input-text" placeholder="Mr Owl ate my metal worm" autofocus></textarea>
+		    	</div>
 
-    	<div>
-    		<div id="counter"><span id="word-count">0</span> / 300</div>
-    		<div id="output-text"></div>
-    	</div>
+		    	<div>
+		    		<div id="output-text"></div>
+		    	</div>
+		    </div>
 
+	    </div>
+	    <button id="clear-btn">Clear</button>
     </div>
 	
-    <script src="script.js"></script>
+    <script type="text/javascript">
+    	const input_box = document.getElementById("input-text");
+		const output_box = document.getElementById("output-text");
+		const word_count = document.getElementById("word-count");
+		const max_word_count = document.getElementById("max-word-count");
+		const clear_btn = document.getElementById("clear-btn");
+
+		let word_min = 2;
+		let word_max = 300;
+
+
+		max_word_count.innerHTML = word_max;
+
+
+		input_box.addEventListener('input', updateString);
+		clear_btn.addEventListener('click', clearInput);
+
+		function updateString(e){
+
+			let input_string = input_box.value;
+			let count = input_string.length;
+			updateCount(count);
+
+			let reverse_string = reverseString(input_string);
+
+			if( count == 0 ) {
+				clear_btn.className = "disabled";
+			} else {
+				clear_btn.classList.remove("disabled");
+			}
+
+			if( count < word_min ){
+				output_box.innerHTML = "Your input must have " + word_min + " or more characters.";
+			} else if( count > word_max ){
+				output_box.innerHTML = "<h2 class='err'>Sorry</h2> Your input must be " + word_max + " characters or less."
+			} else {
+				output_box.innerHTML = reverse_string;
+			}
+		}
+		updateString();
+
+		function updateCount(c){
+			word_count.innerHTML = c;
+
+			if( c > word_max){
+				word_count.style.color = "#F32424";
+			} else {
+				word_count.style.color = "inherit";
+			}
+		}
+
+		function reverseString(s) {
+		    var newString = "";
+		    for (var i = s.length - 1; i >= 0; i--) {
+		        newString += s[i];
+		    }
+		    return newString;
+		}
+
+		function clearInput(){
+
+			if(input_box.value != ""){
+				
+				input_box.value = "";
+				updateString();
+			}
+		}
+    </script>
   </body>
 </html>
