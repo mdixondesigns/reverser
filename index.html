@@ -11,9 +11,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Roboto&display=swap" rel="stylesheet">
     
 	<style type="text/css">
-		* {
-			box-sizing:  border-box;
-		}
+		* { box-sizing:  border-box; }
 
 		body {
 			background-color: #F2F2F2;
@@ -21,36 +19,27 @@
 		}
 
 		h1, h2 {
-			color:  #764AF1;
+			color: #764AF1;
 			font-family: 'Abril Fatface', cursive;
 			letter-spacing: 1px;
 		}
 
-		h1 {
-			font-size:  3rem;
-		}
+		h1 { font-size:  3rem; }
 
-		h1, p {
-			max-width: 520px;
-		}
+		h1, p { max-width: 520px; }
 
-		h2.err {
-			color: #F32424;
-		}
+		h2.err { color: #F32424; } /* Red for errors */
 
 		#wrapper {
 			margin: 0 auto;
 			max-width: 900px;
 		}
 
-		.app-container {
-			margin-bottom: 15px;
-		}
-
 		#input-output-container {
-			display:  flex;
-			flex-direction: column;
-			gap:  15px;
+			display: flex;
+			flex-direction: column; /* Thinking about mobile first */
+			gap: 15px;
+			margin-bottom: 15px;
 		}
 
 		@media only screen and (min-width: 567px) {
@@ -67,22 +56,22 @@
 		#counter {
 			position: absolute;
 		    
+		    /* Top property matches line-height. Would probably be a variable in a proper design system */
 		    top: -19px;
 		    right: 0;
 		}
 
 		textarea {
 			border: 2px solid #9772FB;
-			border-radius: 4px;
 			font-family: 'Roboto', sans-serif;
 			font-size: 1rem;
-			max-width:  100%;
-			min-height:  200px;
-			padding:  24px;
-			padding-right: 48px;
+			max-width: 100%;
+
+			/* Normally, I find resize: none annoying as a user but in this case with the flex box layout and character limit, it makes sense. */
 			resize: none;
-			width:  100%;
+			width: 100%;
 		}
+
 		textarea:focus {
 			border: 2px solid #764AF1;
 			outline: none !important;
@@ -90,6 +79,10 @@
 
 		#output-text {
 			background-color: #eaeaea;
+		}
+
+		#input-text,
+		#output-text {
 			border-radius:  4px;
 			min-height:  200px;
 			padding:  24px;
@@ -120,78 +113,120 @@
 
 	    <h1>The Magnificent Text Reverser</h1>
 	    <p>Are you sick of reading everything from left to right? Well have I got the tool for you! Simply drop your prose into the Magnificent Text Reverser and watch your worries melt away!</p>
-	    <br>
-	    <br>
+	   
+	    <br/>
+	    <br/>
+	    
+    	<label for="input-text">Your text goes here:</label>
 
-	    <div class="app-container">
-	    	<label for="input-text">Your text goes here:</label>
+    	<div id="input-output-container">
+	    	<div>
+	    		<div id="counter">Chars: <span id="char-count">0</span> / <span id="max-char-count">300</span></div>
+	    		<textarea id="input-text" placeholder="Mr Owl ate my metal worm" autofocus></textarea>
+	    	</div>
 
-	    	<div id="input-output-container">
-		    	<div>
-		    		<div id="counter">Chars: <span id="word-count">0</span> / <span id="max-word-count">300</span></div>
-		    		<textarea id="input-text" placeholder="Mr Owl ate my metal worm" autofocus></textarea>
-		    	</div>
-
-		    	<div>
-		    		<div id="output-text"></div>
-		    	</div>
-		    </div>
-
+	    	<div>
+	    		<div id="output-text"></div>
+	    	</div>
 	    </div>
+
 	    <button id="clear-btn">Clear</button>
     </div>
 	
     <script type="text/javascript">
+    	/* Store each of the important DOM elements */
     	const input_box = document.getElementById("input-text");
 		const output_box = document.getElementById("output-text");
-		const word_count = document.getElementById("word-count");
-		const max_word_count = document.getElementById("max-word-count");
+		const char_count = document.getElementById("char-count");
+		const max_char_count = document.getElementById("max-char-count");
 		const clear_btn = document.getElementById("clear-btn");
 
-		let word_min = 2;
-		let word_max = 300;
+		/* Upper and lower character limits */
+		let char_min = 2;
+		let char_max = 300;
 
+		/* Show the upper character limit in the UI */
+		max_char_count.innerHTML = char_max;
 
-		max_word_count.innerHTML = word_max;
-
-
+		/* 
+			There are two ways the user can interact: 
+			1) Type or delete inside the input box
+			2) Click on the clear button
+		*/
 		input_box.addEventListener('input', updateString);
 		clear_btn.addEventListener('click', clearInput);
 
+		/* Determines and updates the contents of the output box.  */
 		function updateString(e){
 
 			let input_string = input_box.value;
 			let count = input_string.length;
+
 			updateCount(count);
 
 			let reverse_string = reverseString(input_string);
 
-			if( count == 0 ) {
+			/* 
+				I opted for bespoke error messages for the upper and lower
+				character limits. If the user has too few characters, they
+				are probably aware and just haven't started yet.
+
+				If they're over the limit, I want them to stop what they're
+				doing and resolve the problem.
+			*/
+			if( count < char_min ){
+				output_box.innerHTML = "Your input must have " + char_min + " or more characters.";
+			} else if( count > char_max ){
+				output_box.innerHTML = "<h2 class='err'>Sorry</h2> Your input must be " + char_max + " characters or less."
+			} else {
+				/* No errors? Display the string! */
+				output_box.innerHTML = reverse_string;
+			}
+		}
+		/* I call the function on load to populate the first message */
+		updateString();
+
+		/* Displays the current character count in the UI */
+		function updateCount(c){
+			char_count.innerHTML = c;
+
+			/* 
+				If the character count exceeds the limit, color it red.
+				
+				I probably could have stopped the user from adding any more
+				text beyond the limit, but I find it annoying as a user when 
+				I paste a large block of text in and the second half is cut 
+				off. 
+
+				Like, "let me pare down the text in a way that makes sense."
+			*/
+			if( c > char_max){
+				char_count.style.color = "#F32424";
+			} else {
+				char_count.style.color = "inherit";
+			}
+
+			/* Disable the clear button if there is no text */
+			if( c == 0 ) {
 				clear_btn.className = "disabled";
 			} else {
 				clear_btn.classList.remove("disabled");
 			}
-
-			if( count < word_min ){
-				output_box.innerHTML = "Your input must have " + word_min + " or more characters.";
-			} else if( count > word_max ){
-				output_box.innerHTML = "<h2 class='err'>Sorry</h2> Your input must be " + word_max + " characters or less."
-			} else {
-				output_box.innerHTML = reverse_string;
-			}
-		}
-		updateString();
-
-		function updateCount(c){
-			word_count.innerHTML = c;
-
-			if( c > word_max){
-				word_count.style.color = "#F32424";
-			} else {
-				word_count.style.color = "inherit";
-			}
 		}
 
+		/*
+			As you suggested, there are tons of ways to reverse a string,
+			including the creative solutions list in "Ten ways to reverse 
+			a string in JavaScript" by Edd Mann.
+
+			Ultimately, I decided on my initial approach, which was to
+			iterate backwards through the string and build a new string
+			with the result.
+
+			It seemed like there were small performance advantages to some
+			of the other approaches (on a browser by browser basis) but I 
+			felt that this method was the most straightforward method.
+		*/
 		function reverseString(s) {
 		    var newString = "";
 		    for (var i = s.length - 1; i >= 0; i--) {
@@ -201,13 +236,27 @@
 		}
 
 		function clearInput(){
-
-			if(input_box.value != ""){
-				
+			/* If the input box is not already clear, clear it. */
+			if(input_box.value != ""){	
 				input_box.value = "";
 				updateString();
 			}
 		}
+
+		/*
+			Overall, this was a fun exercise! 
+
+			I was liberal with the "instructions" requirment and did my best
+			to design a UI that spoke for itself without relying on blocks
+			of text for instructions.
+
+			If I had more time, I'd look into support for multiple spaces in
+			the text area and line breaks.
+
+			Also, I might add a button or link that would add some sample text
+			into the text area, in case the user wanted to see the result but
+			had nothing to reverse.
+		*/
     </script>
   </body>
 </html>
